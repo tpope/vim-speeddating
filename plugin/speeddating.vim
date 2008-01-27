@@ -527,6 +527,13 @@ function! s:timestamp(utc,count)
             return ""
         endif
     endfor
+    let [start,end,string;caps] = s:findinline('-\=\<\d\+\>')
+    if string != ""
+        let newstring = localtime() + (a:utc ? 1 : -1) * a:count * 60*15
+        call s:replaceinline(start,end,newstring)
+        call setpos('.',[0,line('.'),start+strlen(newstring),0])
+        silent! call dot#set("\<Plug>SpeedDatingNow".(a:utc ? "UTC" : "Local"),a:count)
+    endif
 endfunction
 
 function! s:dateincrement(string,offset,increment) dict
