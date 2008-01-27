@@ -722,7 +722,10 @@ command! -bar -bang -count=0 -nargs=? SpeedDatingFormat :call s:adddate(<q-args>
 " }}}1
 " Default Formats {{{1
 
+SpeedDatingFormat %a %b %d %H:%M:%S UTC %Y      " default date(1) format
+SpeedDatingFormat %a %b %d %H:%M:%S %[A-Z]%[A-Z]T %Y
 SpeedDatingFormat %i, %d %h %Y %H:%M:%S         " RFC822, sans timezone
+SpeedDatingFormat %i, %h %d, %Y at %I:%M:%S%^P  " mutt default date format
 SpeedDatingFormat %h %_d %H:%M:%S               " syslog
 SpeedDatingFormat %Y-%m-%d%[ T_-]%H:%M:%S%?[Z]  " SQL, etc.
 SpeedDatingFormat %Y-%m-%d
