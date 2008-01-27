@@ -649,12 +649,25 @@ function! s:createtimehandler(format)
             let regexp += ["\\".usergroups[strpart(fragment,1)-1]]
             let template .= regexp[-1]
             let default .= userdefaults[strpart(fragment,1)-1]
+        elseif fragment == '%*'
+            if len(regexp) == 1
+                let regexp = []
+                let targets = []
+            else
+                let regexp += ['\(.*\)']
+            endif
         else
             let regexp += [fragment]
             let template .= fragment
             let default .= fragment
         endif
     endwhile
+    if regexp[-1] == '\(.*\)'
+        call remove(regexp,-1)
+        call remove(targets,-1)
+    else
+        let regexp += ['\>']
+    endif
     return {'source': a:format, 'strftime': template, 'groups': regexp, 'regexp': s:function('s:timeregexp'), 'reader': reader, 'targets': targets, 'default': default, 'increment': s:function('s:dateincrement')}
 endfunction
 
@@ -685,6 +698,7 @@ function! s:adddate(master,count,bang)
             echo '%_x    %x with spaces rather than leading zeros'
             echo '%-x    %x with no leading spaces or zeros'
             echo '%^x    %x in uppercase'
+            echo '%*     at beginning/end, surpress \</\> respectively'
             echo '%[..]  any one character         \([..]\)'
             echo '%?[..] up to one character       \([..]\=\)'
             echo '%1     character from first collection match \1'
