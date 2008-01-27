@@ -626,10 +626,12 @@ function! s:createtimehandler(format)
             let reader += [item[1]]
             if modifier == '^'
                 let pat = substitute(item[2],'\C\\\@<![[:lower:]]','\u&','g')
-                let regexp += ['\('.pat.'\)']
+            elseif modifier == '0'
+                let pat = substitute(item[2],' \|-\@<!\\=','','g')
             else
-                let regexp += ['\('.item[2].'\)']
+                let pat = item[2]
             endif
+            let regexp += ['\('.pat.'\)']
             let group += 1
             let template .= fragment
             let default .= fragment
@@ -695,6 +697,7 @@ function! s:adddate(master,count,bang)
             for key in sort(keys(s:strftime_items),s:function("s:comparecase"))
                 echo printf("%2s     %-25s %s",'%'.key,s:strftime_items[key][3],s:strftime('%'.key,localtime()))
             endfor
+            echo '%0x    %x with mandatory leading zeros'
             echo '%_x    %x with spaces rather than leading zeros'
             echo '%-x    %x with no leading spaces or zeros'
             echo '%^x    %x in uppercase'
