@@ -769,13 +769,12 @@ nnoremap <silent> <Plug>SpeedDatingNowLocal :<C-U>call <SID>timestamp(0,v:count)
 nnoremap <silent> <Plug>SpeedDatingNowUTC   :<C-U>call <SID>timestamp(1,v:count)<CR>
 
 if !exists("g:speeddating_no_mappings") || !g:speeddating_no_mappings
-    map  <C-A>      <Plug>SpeedDatingUp
-    map  <C-X>      <Plug>SpeedDatingDown
+    nmap  <C-A>     <Plug>SpeedDatingUp
+    nmap  <C-X>     <Plug>SpeedDatingDown
+    xmap  <C-A>     <Plug>SpeedDatingUp
+    xmap  <C-X>     <Plug>SpeedDatingDown
     nmap d<C-A>     <Plug>SpeedDatingNowUTC
     nmap d<C-X>     <Plug>SpeedDatingNowLocal
-    " Deprecated
-    nmap <Leader>sn <Plug>SpeedDatingNowLocal
-    nmap <Leader>su <Plug>SpeedDatingNowUTC
 endif
 
 " }}}1
