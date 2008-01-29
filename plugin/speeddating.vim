@@ -148,7 +148,7 @@ function! s:increment(increment)
             if repl != ""
                 call s:replaceinline(start,end,repl)
                 call setpos('.',[0,line('.'),start+offset,0])
-                silent! call dot#set("\<Plug>SpeedDating" . (a:increment < 0 ? "Down" : "Up"),a:increment < 0 ? -a:increment : a:increment)
+                silent! call repeat#set("\<Plug>SpeedDating" . (a:increment < 0 ? "Down" : "Up"),a:increment < 0 ? -a:increment : a:increment)
                 return
             endif
         endif
@@ -158,7 +158,7 @@ function! s:increment(increment)
     else
         exe "norm! ".-a:increment."\<C-X>"
     endif
-    silent! call dot#set("\<Plug>SpeedDating" . (a:increment < 0 ? "Down" : "Up"),a:increment < 0 ? -a:increment : a:increment)
+    silent! call repeat#set("\<Plug>SpeedDating" . (a:increment < 0 ? "Down" : "Up"),a:increment < 0 ? -a:increment : a:increment)
 endfunction
 
 " }}}1
@@ -523,7 +523,7 @@ function! s:timestamp(utc,count)
             endif
             call s:replaceinline(start,end,newstring)
             call setpos('.',[0,line('.'),start+strlen(newstring),0])
-            silent! call dot#set("\<Plug>SpeedDatingNow".(a:utc ? "UTC" : "Local"),a:count)
+            silent! call repeat#set("\<Plug>SpeedDatingNow".(a:utc ? "UTC" : "Local"),a:count)
             return ""
         endif
     endfor
@@ -532,7 +532,7 @@ function! s:timestamp(utc,count)
         let newstring = localtime() + (a:utc ? 1 : -1) * a:count * 60*15
         call s:replaceinline(start,end,newstring)
         call setpos('.',[0,line('.'),start+strlen(newstring),0])
-        silent! call dot#set("\<Plug>SpeedDatingNow".(a:utc ? "UTC" : "Local"),a:count)
+        silent! call repeat#set("\<Plug>SpeedDatingNow".(a:utc ? "UTC" : "Local"),a:count)
     endif
 endfunction
 
