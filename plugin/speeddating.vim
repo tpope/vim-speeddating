@@ -44,8 +44,11 @@
 " d<C-X>  change the timestamp under the cursor to the current local time
 "
 " Caveats:
-" Completely timezone ignorant.
-" Gregorian calendar always used.
+" - Completely timezone ignorant.
+" - Gregorian calendar always used.
+" - Beginning a format with a digit causes Vim to treat leading digits as a
+"   count instead.  To work around this escape it with %[] instead (e.g.,
+"   %[2]0%0y%0m%0d%* is a decent format for DNS serials).
 
 " Licensed under the same terms as Vim itself.
 
