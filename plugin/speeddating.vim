@@ -7,6 +7,7 @@
 " lines below.  You can also give a count (e.g., 4<C-A>).
 
 " Fri, 31 Dec 1999 23:59:59 +0000
+" Fri Dec 31 23:59:59 UTC 1999
 " 2008-01-05T04:59:59Z
 " 1865-04-15
 " 11/Sep/01
@@ -44,10 +45,13 @@
 " d<C-X>  change the timestamp under the cursor to the current local time
 "
 " Caveats:
-" - Completely timezone ignorant.
 " - Gregorian calendar always used.
+" - Time zone abbreviation support is limited to a few predefined codes on
+"   Windows and other platforms without strftime("%Z") support.  If your time
+"   zone abbreviation is not correctly identified set the g:speeddating_zone
+"   and g:speeddating_zone_dst variables.
 " - Beginning a format with a digit causes Vim to treat leading digits as a
-"   count instead.  To work around this escape it with %[] instead (e.g.,
+"   count instead.  To work around this escape it with %[] (e.g.,
 "   %[2]0%0y%0m%0d%* is a decent format for DNS serials).
 
 " Licensed under the same terms as Vim itself.
@@ -350,17 +354,6 @@ endfunction
 " }}}1
 " Time Helpers {{{1
 
-" approximate
-let s:offset = strftime("%d",86400)*24+strftime("%H",86400)-48
-
-let s:days_engl   =["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
-let s:days_abbr   =map(range(86400*3+43200-s:offset*3600,86400*12,86400),'strftime("%a",v:val)')[0:6]
-let s:days_full   =map(range(86400*3+43200-s:offset*3600,86400*12,86400),'strftime("%A",v:val)')[0:6]
-
-let s:months_engl =["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
-let s:months_abbr =map(range(86400*2,86400*365,86400*31),'strftime("%b",v:val)')
-let s:months_full =map(range(86400*2,86400*365,86400*31),'strftime("%B",v:val)')
-
 function! s:ary2pat(array)
     return '\%('.join(a:array,'\|').'\)'
     return '\%('.join(map(copy(a:array),'substitute(v:val,"[[:alpha:]]","[\\u&\\l&]","g")'),'\|').'\)'
@@ -411,6 +404,10 @@ function! s:initializetime(time)
     endif
     if a:time.o =~ '^[+-]\d\d\d\d$'
         let a:time.o = (a:time.o[0]=="-" ? -1 : 1)*(a:time.o[1:2]*60+a:time.o[3:4])
+    elseif get(a:time,'z') == g:speeddating_zone
+        let a:time.o = s:offset
+    elseif get(a:time,'z') == g:speeddating_zone_dst
+        let a:time.o = s:offset_dst
     endif
     return a:time
 endfunction
@@ -533,6 +530,58 @@ function! s:formattz(offset)
 endfunction
 
 " }}}1
+" Time Data {{{1
+
+let s:offset     = s:localtime((  0+30*365)*86400).o
+if !exists("g:speeddating_zone")
+    let g:speeddating_zone = strftime("%Z",30*365*86400)
+    if g:speeddating_zone == ""
+        let g:speeddating_zone = get({-8:'PST',-7:'MST',-6:'CST',-5:'EST',0:'WET',1:'CET',2:'EET'},s:offset/60,"XST")
+    endif
+endif
+
+let s:offset_dst = s:localtime((180+30*365)*86400).o
+if !exists("g:speeddating_zone_dst")
+    let g:speeddating_zone_dst = strftime("%Z",(180+30*365)*86400)
+    if g:speeddating_zone_dst == ""
+        if s:offset == s:offset_dst
+            let g:speeddating_zone_dst = g:speeddating_zone
+        else
+            let g:speeddating_zone_dst = get({-7:'PDT',-6:'MDT',-5:'CDT',-4:'EDT',1:'WEST',2:'CEST',3:'EEST'},s:offset_dst/60,"XDT")
+        endif
+    endif
+endif
+
+let s:days_engl   =["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+let s:days_abbr   =map(range(86400*3+43200-s:offset*60,86400*12,86400),'strftime("%a",v:val)')[0:6]
+let s:days_full   =map(range(86400*3+43200-s:offset*60,86400*12,86400),'strftime("%A",v:val)')[0:6]
+
+let s:months_engl =["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+let s:months_abbr =map(range(86400*2,86400*365,86400*31),'strftime("%b",v:val)')
+let s:months_full =map(range(86400*2,86400*365,86400*31),'strftime("%B",v:val)')
+
+let s:strftime_items = {
+            \ "a": ['d','w',s:ary2pat(s:days_abbr),   'weekday (abbreviation)',s:days_abbr],
+            \ "A": ['d','w',s:ary2pat(s:days_full),   'weekday (full name)',s:days_full],
+            \ "i": ['d','w',s:ary2pat(s:days_engl),   'weekday (English abbr)',s:days_engl],
+            \ "b": ['b','b',s:ary2pat(s:months_abbr), 'month (abbreviation)',[""]+s:months_abbr],
+            \ "B": ['b','b',s:ary2pat(s:months_full), 'month (full name)',[""]+s:months_full],
+            \ "h": ['b','b',s:ary2pat(s:months_engl), 'month (English abbr)',[""]+s:months_engl],
+            \ "d": ['d','d','[ 0-3]\=\d', 'day   (01-31)',2],
+            \ "H": ['h','h','[ 0-2]\=\d', 'hour  (00-23)',2],
+            \ "I": ['h','h','[ 0-2]\=\d', 'hour  (01-12)',['12', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11']],
+            \ "m": ['b','b','[ 0-1]\=\d', 'month (01-12)',2],
+            \ "M": ['m','m','[ 0-5]\=\d', 'minutes',2],
+            \ "o": ['d','d','[ 0-3]\=\d\%(st\|nd\|rd\|th\)','day  (1st-31st)',s:function("s:ordinalize")],
+            \ "P": ['h','p','[ap]m', 'am/pm',repeat(['am'],12) + repeat(['pm'],12)],
+            \ "S": ['s','s','[ 0-5]\=\d', 'seconds',2],
+            \ "v": ['y','y','[ivxlcdmn]\+','year (roman numerals)',s:function("s:arabic2roman")],
+            \ "y": ['y','y','\d\d','year  (00-99)',s:function("s:modyear")],
+            \ "Y": ['y','y','-\=\d\d\d\=\d\=','year',4],
+            \ "z": ['o','o','[+-]\d\d\d\d','timezone offset',s:function("s:formattz")],
+            \ "Z": [' ','z','[A-Z]\{3,5}','timezone (incomplete)',3]}
+
+" }}}1
 " Time Handler {{{1
 
 function! s:timestamp(utc,count)
@@ -540,13 +589,23 @@ function! s:timestamp(utc,count)
         let [start,end,string;caps] = s:findinline('\C'.join(handler.groups,''))
         if string != ""
             let format = substitute(handler.strftime,'\\\([1-9]\)','\=caps[submatch(1)-1]','g')
-            if a:utc
-                let newstring = s:strftime(format,localtime()+a:count*60*15)
-            elseif a:count
-                let newstring = s:strftime(format,localtime()-a:count*60*15)
+            if a:utc || a:count
+                let time = s:initializetime({'y':1970,'s':localtime(),'o':(a:utc? 1 : -1)*a:count*15})
             else
-                let newstring = s:strftime(format,s:localtime())
+                let time = s:localtime()
             endif
+            if a:utc && !a:count
+                let time.z = 'UTC'
+            elseif time.o == s:offset
+                let time.z = g:speeddating_zone
+            elseif time.o == s:offset_dst
+                let time.z = g:speeddating_zone_dst
+            elseif time.o == 0
+                let time.z = 'UTC'
+            else
+                let time.z = 'XXT'
+            endif
+            let newstring = s:strftime(format,time)
             call s:replaceinline(start,end,newstring)
             call setpos('.',[0,line('.'),start+strlen(newstring),0])
             silent! call repeat#set("\<Plug>SpeedDatingNow".(a:utc ? "UTC" : "Local"),a:count)
@@ -612,26 +671,6 @@ function! s:dateincrement(string,offset,increment) dict
     let time_string = s:strftime(format,time)
     return [time_string, matchend(time_string,partial_pattern)-inner_offset]
 endfunction
-
-let s:strftime_items = {
-            \ "a": ['d','w',s:ary2pat(s:days_abbr),   'weekday (abbreviation)',s:days_abbr],
-            \ "A": ['d','w',s:ary2pat(s:days_full),   'weekday (full name)',s:days_full],
-            \ "i": ['d','w',s:ary2pat(s:days_engl),   'weekday (English abbr)',s:days_engl],
-            \ "b": ['b','b',s:ary2pat(s:months_abbr), 'month (abbreviation)',[""]+s:months_abbr],
-            \ "B": ['b','b',s:ary2pat(s:months_full), 'month (full name)',[""]+s:months_full],
-            \ "h": ['b','b',s:ary2pat(s:months_engl), 'month (English abbr)',[""]+s:months_engl],
-            \ "d": ['d','d','[ 0-3]\=\d', 'day   (01-31)',2],
-            \ "H": ['h','h','[ 0-2]\=\d', 'hour  (00-23)',2],
-            \ "I": ['h','h','[ 0-2]\=\d', 'hour  (01-12)',['12', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11']],
-            \ "m": ['b','b','[ 0-1]\=\d', 'month (01-12)',2],
-            \ "M": ['m','m','[ 0-5]\=\d', 'minutes',2],
-            \ "o": ['d','d','[ 0-3]\=\d\%(st\|nd\|rd\|th\)','day  (1st-31st)',s:function("s:ordinalize")],
-            \ "P": ['h','p','[ap]m', 'am/pm',repeat(['am'],12) + repeat(['pm'],12)],
-            \ "S": ['s','s','[ 0-5]\=\d', 'seconds',2],
-            \ "v": ['y','y','[ivxlcdmn]\+','year (roman numerals)',s:function("s:arabic2roman")],
-            \ "y": ['y','y','\d\d','year  (00-99)',s:function("s:modyear")],
-            \ "Y": ['y','y','-\=\d\d\d\=\d\=','year',4],
-            \ "z": ['o','o','[+-]\d\d\d\d','timezone offset',s:function("s:formattz")]}
 
 function! s:timeregexp() dict
     return join(self.groups,'')
@@ -725,6 +764,7 @@ endfunction
 
 function! s:adddate(master,count,bang)
     if a:master == ""
+        let time = s:initializetime({'y':1970,'s':localtime(),'z': 'UTC'})
         if a:bang && a:count
             silent! call remove(s:time_handlers,a:count - 1)
         elseif a:bang
@@ -737,7 +777,7 @@ function! s:adddate(master,count,bang)
             echo " "
             echo "Expansions:"
             for key in sort(keys(s:strftime_items),s:function("s:comparecase"))
-                echo printf("%2s     %-25s %s",'%'.key,s:strftime_items[key][3],s:strftime('%'.key,localtime()))
+                echo printf("%2s     %-25s %s",'%'.key,s:strftime_items[key][3],s:strftime('%'.key,time))
             endfor
             echo '%0x    %x with mandatory leading zeros'
             echo '%_x    %x with spaces rather than leading zeros'
@@ -759,7 +799,7 @@ function! s:adddate(master,count,bang)
             let i = 0
             for handler in s:time_handlers
                 let i += 1
-                echo printf("%3d %-32s %-32s",i,handler.source,s:strftime(handler.default,localtime()))
+                echo printf("%3d %-32s %-32s",i,handler.source,s:strftime(handler.default,time))
             endfor
         endif
     elseif a:bang
@@ -781,8 +821,7 @@ command! -bar -bang -count=0 -nargs=? SpeedDatingFormat :call s:adddate(<q-args>
 " }}}1
 " Default Formats {{{1
 
-SpeedDatingFormat %a %b %d %H:%M:%S UTC %Y        " default date(1) format
-SpeedDatingFormat %a %b %d %H:%M:%S %[A-Z]%[A-Z]T %Y
+SpeedDatingFormat %a %b %_d %H:%M:%S %Z %Y        " default date(1) format
 SpeedDatingFormat %i, %d %h %Y %H:%M:%S %z        " RFC822
 SpeedDatingFormat %i, %h %d, %Y at %I:%M:%S%^P %z " mutt default date format
 SpeedDatingFormat %h %_d %H:%M:%S                 " syslog
