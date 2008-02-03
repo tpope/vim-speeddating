@@ -367,7 +367,7 @@ function! s:ary2pat(array)
 endfunction
 
 function! s:initializetime(time)
-    call extend(a:time,{'y':2000,'b':1,'d':0,'h':0,'m':0,'s':0},"keep")
+    call extend(a:time,{'y':2000,'b':1,'d':0,'h':0,'m':0,'s':0,'o':0},"keep")
     if get(a:time,'b','') !~ '^\d*$'
         let full = index(s:months_full ,a:time.b,0,1) + 1
         let engl = index(s:months_engl ,a:time.b,0,1) + 1
@@ -408,6 +408,9 @@ function! s:initializetime(time)
     endif
     if a:time.d == 0
         let a:time.d = 1
+    endif
+    if a:time.o =~ '^[+-]\d\d\d\d$'
+        let a:time.o = (a:time.o[0]=="-" ? -1 : 1)*(a:time.o[1:2]*60+a:time.o[3:4])
     endif
     return a:time
 endfunction
@@ -503,6 +506,32 @@ function! s:strftime(pattern,time)
     return expanded
 endfunction
 
+function! s:localtime(...)
+    let ts = a:0 ? a:1 : localtime()
+    let time = {
+                \ 'y': +strftime('%Y',ts),
+                \ 'b': +strftime('%m',ts),
+                \ 'd': +strftime('%d',ts),
+                \ 'h': +strftime('%H',ts),
+                \ 'm': +strftime('%M',ts),
+                \ 's': +strftime('%S',ts)}
+    let jd = s:jd(time.y,time.b,time.d) - s:jd(1970,1,1)
+    let real_ts = jd * 86400 + time.h * 3600 + time.m * 60 + time.s
+    let time.o = (real_ts - ts) / 60
+    return time
+endfunction
+
+function! s:formattz(offset)
+    if a:offset < 0
+        let offset = -a:offset
+        let sign = "-"
+    else
+        let offset = a:offset
+        let sign = "+"
+    endif
+    return printf("%s%02d%02d",sign,offset/60,offset%60)
+endfunction
+
 " }}}1
 " Time Handler {{{1
 
@@ -516,13 +545,7 @@ function! s:timestamp(utc,count)
             elseif a:count
                 let newstring = s:strftime(format,localtime()-a:count*60*15)
             else
-                let newstring = s:strftime(format,{
-                            \ 'y': strftime('%Y'),
-                            \ 'b': strftime('%m'),
-                            \ 'd': strftime('%d'),
-                            \ 'h': strftime('%H'),
-                            \ 'm': strftime('%M'),
-                            \ 's': strftime('%S')})
+                let newstring = s:strftime(format,s:localtime())
             endif
             call s:replaceinline(start,end,newstring)
             call setpos('.',[0,line('.'),start+strlen(newstring),0])
@@ -569,10 +592,25 @@ function! s:dateincrement(string,offset,increment) dict
         let i += 1
     endfor
     call s:initializetime(time)
-    let time[char] += a:increment
+    if char == 'o'
+        let inner_offset = partial_matchend - offset - 1
+        let factor = 15
+        if inner_offset <= 0
+            let inner_offset = 0
+            let factor = 1
+        elseif inner_offset > 1
+            let factor = 60
+            let inner_offset = 2
+        endif
+        let time.o += factor * a:increment
+        let time.m += factor * a:increment
+    else
+        let time[char] += a:increment
+        let inner_offset = 0
+    endif
     let format = substitute(self.strftime,'\\\([1-9]\)','\=caps[submatch(1)-1]','g')
     let time_string = s:strftime(format,time)
-    return [time_string, matchend(time_string,partial_pattern)]
+    return [time_string, matchend(time_string,partial_pattern)-inner_offset]
 endfunction
 
 let s:strftime_items = {
@@ -592,7 +630,8 @@ let s:strftime_items = {
             \ "S": ['s','s','[ 0-5]\=\d', 'seconds',2],
             \ "v": ['y','y','[ivxlcdmn]\+','year (roman numerals)',s:function("s:arabic2roman")],
             \ "y": ['y','y','\d\d','year  (00-99)',s:function("s:modyear")],
-            \ "Y": ['y','y','-\=\d\d\d\=\d\=','year',4]}
+            \ "Y": ['y','y','-\=\d\d\d\=\d\=','year',4],
+            \ "z": ['o','o','[+-]\d\d\d\d','timezone offset',s:function("s:formattz")]}
 
 function! s:timeregexp() dict
     return join(self.groups,'')
@@ -742,12 +781,12 @@ command! -bar -bang -count=0 -nargs=? SpeedDatingFormat :call s:adddate(<q-args>
 " }}}1
 " Default Formats {{{1
 
-SpeedDatingFormat %a %b %d %H:%M:%S UTC %Y      " default date(1) format
+SpeedDatingFormat %a %b %d %H:%M:%S UTC %Y        " default date(1) format
 SpeedDatingFormat %a %b %d %H:%M:%S %[A-Z]%[A-Z]T %Y
-SpeedDatingFormat %i, %d %h %Y %H:%M:%S         " RFC822, sans timezone
-SpeedDatingFormat %i, %h %d, %Y at %I:%M:%S%^P  " mutt default date format
-SpeedDatingFormat %h %_d %H:%M:%S               " syslog
-SpeedDatingFormat %Y-%m-%d%[ T_-]%H:%M:%S%?[Z]  " SQL, etc.
+SpeedDatingFormat %i, %d %h %Y %H:%M:%S %z        " RFC822
+SpeedDatingFormat %i, %h %d, %Y at %I:%M:%S%^P %z " mutt default date format
+SpeedDatingFormat %h %_d %H:%M:%S                 " syslog
+SpeedDatingFormat %Y-%m-%d%[ T_-]%H:%M:%S%?[Z]    " SQL, etc.
 SpeedDatingFormat %Y-%m-%d
 SpeedDatingFormat %-I:%M:%S%?[ ]%^P
 SpeedDatingFormat %-I:%M%?[ ]%^P
