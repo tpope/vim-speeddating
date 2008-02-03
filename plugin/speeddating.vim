@@ -402,11 +402,11 @@ function! s:initializetime(time)
     if a:time.d == 0
         let a:time.d = 1
     endif
-    if a:time.o =~ '^[+-]\d\d\d\d$'
-        let a:time.o = (a:time.o[0]=="-" ? -1 : 1)*(a:time.o[1:2]*60+a:time.o[3:4])
-    elseif get(a:time,'z') == g:speeddating_zone
+    if a:time.o =~ '^[+-]\d\d:\=\d\d$'
+        let a:time.o = (a:time.o[0]=="-" ? -1 : 1)*(a:time.o[1:2]*60+matchstr(a:time.o,'\d\d$'))
+    elseif get(a:time,'z','') == g:speeddating_zone
         let a:time.o = s:offset
-    elseif get(a:time,'z') == g:speeddating_zone_dst
+    elseif get(a:time,'z','') == g:speeddating_zone_dst
         let a:time.o = s:offset_dst
     endif
     return a:time
@@ -590,7 +590,8 @@ function! s:timestamp(utc,count)
         if string != ""
             let format = substitute(handler.strftime,'\\\([1-9]\)','\=caps[submatch(1)-1]','g')
             if a:utc || a:count
-                let time = s:initializetime({'y':1970,'s':localtime(),'o':(a:utc? 1 : -1)*a:count*15})
+                let offset = (a:utc ? 1 : -1) * a:count * 15
+                let time = s:initializetime({'y':1970,'s':localtime()+offset*60,'o':offset})
             else
                 let time = s:localtime()
             endif
@@ -821,10 +822,12 @@ command! -bar -bang -count=0 -nargs=? SpeedDatingFormat :call s:adddate(<q-args>
 " }}}1
 " Default Formats {{{1
 
-SpeedDatingFormat %a %b %_d %H:%M:%S %Z %Y        " default date(1) format
 SpeedDatingFormat %i, %d %h %Y %H:%M:%S %z        " RFC822
 SpeedDatingFormat %i, %h %d, %Y at %I:%M:%S%^P %z " mutt default date format
+SpeedDatingFormat %a %b %_d %H:%M:%S %Z %Y        " default date(1) format
+SpeedDatingFormat %a %h %-d %H:%M:%S %Y %z        " git
 SpeedDatingFormat %h %_d %H:%M:%S                 " syslog
+SpeedDatingFormat %Y-%m-%d%[ T_-]%H:%M:%S %z
 SpeedDatingFormat %Y-%m-%d%[ T_-]%H:%M:%S%?[Z]    " SQL, etc.
 SpeedDatingFormat %Y-%m-%d
 SpeedDatingFormat %-I:%M:%S%?[ ]%^P
