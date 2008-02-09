@@ -79,7 +79,7 @@ endfunction
 
 " In Vim, -4 % 3 == -1.  Let's return 2 instead.
 function! s:mod(a,b)
-    if a:a < 0 && a:b > 0 || a:a > 0 && a:b < 0
+    if (a:a < 0 && a:b > 0 || a:a > 0 && a:b < 0) && a:a % a:b != 0
         return (a:a % a:b) + a:b
     else
         return a:a % a:b
