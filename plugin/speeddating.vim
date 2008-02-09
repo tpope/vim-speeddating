@@ -360,7 +360,7 @@ function! s:ary2pat(array)
 endfunction
 
 function! s:initializetime(time)
-    call extend(a:time,{'y':2000,'b':1,'d':0,'h':0,'m':0,'s':0,'o':0},"keep")
+    call extend(a:time,{'y': '','b':1,'d':0,'h':0,'m':0,'s':0,'o':0},"keep")
     if get(a:time,'b','') !~ '^\d*$'
         let full = index(s:months_full ,a:time.b,0,1) + 1
         let engl = index(s:months_engl ,a:time.b,0,1) + 1
@@ -386,21 +386,31 @@ function! s:initializetime(time)
         let a:time.y = s:roman2arabic(a:time.y)
     elseif a:time.y =~ '^-\=0..'
         let a:time.y = substitute(a:time.y,'0\+','','')
-    elseif a:time.y < 38 && a:time.y >= 0
+    elseif a:time.y < 38 && a:time.y >= 0 && a:time.y != ""
         let a:time.y += 2000
-    elseif a:time.y < 100 && a:time.y >= 0
+    elseif a:time.y < 100 && a:time.y >= 38
         let a:time.y += 1900
     endif
-    if a:time.d == 0 && has_key(a:time,'w')
-        let full = index(s:days_full ,a:time.w,0,1)
-        let engl = index(s:days_engl ,a:time.w,0,1)
-        let abbr = index(s:days_abbr ,a:time.w,0,1)
-        let any = full > 0 ? full : (engl > 0 ? engl : (abbr > 0 ? abbr : a:time.w))
-        let a:time.d = s:mod(any - s:jd(a:time.y,a:time.b,1),7)
+    if has_key(a:time,'w')
+        let full = index(s:days_full,a:time.w,0,1)
+        let engl = index(s:days_engl,a:time.w,0,1)
+        let abbr = index(s:days_abbr,a:time.w,0,1)
+        let a:time.w = full > 0 ? full : (engl > 0 ? engl : (abbr > 0 ? abbr : a:time.w))
+        if a:time.d == 0
+            let a:time.d = s:mod(a:time.w - s:jd(a:time.y,a:time.b,1),7)
+        elseif a:time.y == '' && a:time.b * a:time.d > 0
+            let a:time.y = strftime("%Y")-2
+            while s:mod(s:jd(a:time.y,a:time.b,a:time.d)+1,7) != a:time.w
+                let a:time.y += 1
+            endwhile
+        endif
         call remove(a:time,'w')
     endif
     if a:time.d == 0
         let a:time.d = 1
+    endif
+    if a:time.y == ''
+        let a:time.y = 2000
     endif
     if a:time.o =~ '^[+-]\d\d:\=\d\d$'
         let a:time.o = (a:time.o[0]=="-" ? -1 : 1)*(a:time.o[1:2]*60+matchstr(a:time.o,'\d\d$'))
