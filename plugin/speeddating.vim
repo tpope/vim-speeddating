@@ -386,7 +386,7 @@ function! s:initializetime(time)
         let a:time.y = s:roman2arabic(a:time.y)
     elseif a:time.y =~ '^-\=0..'
         let a:time.y = substitute(a:time.y,'0\+','','')
-    elseif a:time.y < 38 && a:time.y >= 0 && a:time.y != ""
+    elseif a:time.y < 38 && a:time.y >= 0 && ''.a:time.y != ''
         let a:time.y += 2000
     elseif a:time.y < 100 && a:time.y >= 38
         let a:time.y += 1900
@@ -409,7 +409,7 @@ function! s:initializetime(time)
     if a:time.d == 0
         let a:time.d = 1
     endif
-    if a:time.y == ''
+    if ''.a:time.y == ''
         let a:time.y = 2000
     endif
     if a:time.o =~ '^[+-]\d\d:\=\d\d$'
