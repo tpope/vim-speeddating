@@ -751,7 +751,7 @@ function! s:createtimehandler(format)
                 let regexp += ['\(.*\)']
             endif
         else
-            let regexp += [fragment]
+            let regexp += [escape(fragment,'.*^$[\]~')]
             let template .= fragment
             let default .= fragment
         endif
