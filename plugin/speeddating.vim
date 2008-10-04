@@ -1,5 +1,5 @@
 " speeddating.vim - Use CTRL-A/X to increment dates, times, and more
-" Maintainer:   Tim Pope
+" Maintainer:   Tim Pope <vimNOSPAM@tpope.info>
 " Last Change:
 " GetLatestVimScripts: 2120 1 :AutoInstall: speeddating.vim
 
