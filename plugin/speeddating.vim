@@ -1,60 +1,7 @@
-" speeddating.vim - Use CTRL-A/X to increment dates, times, and more
-" Maintainer:   Tim Pope <vimNOSPAM@tpope.info>
+" speeddating.vim - Use CTRL-A/CTRL-X to increment dates, times, and more
+" Maintainer:   Tim Pope <vimNOSPAM@tpope.org>
 " Last Change:
 " GetLatestVimScripts: 2120 1 :AutoInstall: speeddating.vim
-
-" Greatly enhanced <C-A>/<C-X>.  Try these keys on various numbers in the
-" lines below.  You can also give a count (e.g., 4<C-A>).
-
-" Fri, 31 Dec 1999 23:59:59 +0000
-" Fri Dec 31 23:59:59 UTC 1999
-" 2008-01-05T04:59:59Z
-" 1865-04-15
-" 11/Sep/01
-" January 14th, 1982
-" 11:55 AM
-" 3rd
-" XXXVIII
-
-" Try selecting the following lines in visual line mode, positioning the
-" cursor in the last column (so it's on top of a number), and pressing <C-A>.
-
-"        I
-"       II
-"      III
-"       IV
-"        V
-
-" Also try below to see what happens when the field is missing (alphabetical
-" characters can be used in visual mode only, as they overlap with roman
-" numerals):
-
-" Z
-" 
-" 
-" 
-" 
-" 
-" 
-
-" The :SpeedDatingFormat command can be used to define custom date and time
-" formats.  Invoke ":SpeedDatingFormat!" for help.
-"
-" Two additional mappings:
-" d<C-A>  change the timestamp under the cursor to the current time in UTC
-" d<C-X>  change the timestamp under the cursor to the current local time
-"
-" Caveats:
-" - Gregorian calendar always used.
-" - Time zone abbreviation support is limited to a few predefined codes on
-"   Windows and other platforms without strftime("%Z") support.  If your time
-"   zone abbreviation is not correctly identified set the g:speeddating_zone
-"   and g:speeddating_zone_dst variables.
-" - Beginning a format with a digit causes Vim to treat leading digits as a
-"   count instead.  To work around this escape it with %[] (e.g.,
-"   %[2]0%0y%0m%0d%* is a decent format for DNS serials).
-
-" Licensed under the same terms as Vim itself.
 
 " Initialization {{{1
 
