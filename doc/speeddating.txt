@@ -5,7 +5,6 @@ License: Same terms as Vim itself (see |license|)
 
 This plugin is only available if 'compatible' is not set.
 
-==============================================================================
 INTRODUCTION                                    *speeddating*
 
 The easiest way to get a feel for this plugin is to copy the following lines
@@ -23,7 +22,6 @@ incrementing lists and custom formats. >
         3rd
         XXXVIII
 <
-==============================================================================
 MAPS                                            *speeddating-maps*
 
 Here, "component" refers to any year, month, day, hour, minute, or second
@@ -59,7 +57,6 @@ d<C-X>                  Change the time under the cursor to the current local
                                                 *speeddating-v_CTRL-X*
 {Visual}<C-X>           Like |v_CTRL-A|, but decrement.
 
-==============================================================================
 FORMATS                                         *speeddating-formats*
 
 One can use the :SpeedDatingFormat command to list, add, and remove formats.
@@ -84,7 +81,6 @@ One can use the :SpeedDatingFormat command to list, add, and remove formats.
 Of note is that the built-in support for Roman numerals is actually
 implemented with a Roman numeral year format and can be removed.
 
-==============================================================================
 CAVEATS                                         *speeddating-caveats*
 
 Gregorian calendar always used.
