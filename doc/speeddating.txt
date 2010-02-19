@@ -57,6 +57,10 @@ d<C-X>                  Change the time under the cursor to the current local
                                                 *speeddating-v_CTRL-X*
 {Visual}<C-X>           Like |v_CTRL-A|, but decrement.
 
+                                                *speeddating-.*
+.                       If you want to use |.| to repeat a speeddating.vim
+                        mapping, install repeat.vim.
+
 FORMATS                                         *speeddating-formats*
 
 One can use the :SpeedDatingFormat command to list, add, and remove formats.
