@@ -609,6 +609,7 @@ function! s:dateincrement(string,offset,increment) dict
         let i += 1
     endfor
     call s:initializetime(time)
+    let inner_offset = 0
     if char == 'o'
         let inner_offset = partial_matchend - offset - 1
         let factor = 15
@@ -621,9 +622,16 @@ function! s:dateincrement(string,offset,increment) dict
         endif
         let time.o += factor * a:increment
         let time.m += factor * a:increment
+    elseif char == 'b'
+        let time.b += a:increment
+        let goal = time.b
+        call s:normalizetime(time)
+        while time.b != goal
+            let time.d += time.b < goal ? 1 : -1
+            call s:normalizetime(time)
+        endwhile
     else
         let time[char] += a:increment
-        let inner_offset = 0
     endif
     let format = substitute(self.strftime,'\\\([1-9]\)','\=caps[submatch(1)-1]','g')
     let time_string = s:strftime(format,time)
