@@ -624,10 +624,10 @@ function! s:dateincrement(string,offset,increment) dict
         let time.m += factor * a:increment
     elseif char == 'b'
         let time.b += a:increment
-        let goal = time.b
+        let goal = time.y*12 + time.b
         call s:normalizetime(time)
-        while time.b != goal
-            let time.d += time.b < goal ? 1 : -1
+        while time.y*12 + time.b > goal
+            let time.d -= 1
             call s:normalizetime(time)
         endwhile
     else
