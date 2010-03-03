@@ -64,6 +64,7 @@ d<C-X>                  Change the time under the cursor to the current local
 FORMATS                                         *speeddating-formats*
 
 One can use the :SpeedDatingFormat command to list, add, and remove formats.
+A good place to do this is in .vim/after/plugin/speeddating.vim.
 
                                                 *:SpeedDatingFormat*
 :SpeedDatingFormat      List defined formats.
