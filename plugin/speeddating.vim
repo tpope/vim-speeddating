@@ -307,7 +307,7 @@ function! s:ary2pat(array)
 endfunction
 
 function! s:initializetime(time)
-    call extend(a:time,{'y': '','b':1,'d':0,'h':0,'m':0,'s':0,'l':0,'o':0},"keep")
+    call extend(a:time,{'y': '','b':1,'d':0,'h':0,'m':0,'s':0,'l':0,'n':0,'o':0},"keep")
     if get(a:time,'b','') !~ '^\d*$'
         let full = index(s:months_full ,a:time.b,0,1) + 1
         let engl = index(s:months_engl ,a:time.b,0,1) + 1
@@ -394,7 +394,8 @@ endfunction
 function! s:normalizetime(time)
     let a:time.y += s:div(a:time.b-1,12)
     let a:time.b = s:mod(a:time.b-1,12)+1
-    let seconds = a:time.h * 3600 + a:time.m * 60 + a:time.s + s:div(a:time.l,1000)
+    let seconds = a:time.h * 3600 + a:time.m * 60 + a:time.s + s:div(a:time.l,1000) + s:div(a:time.n,1000000000)
+    let a:time.n = s:mod(a:time.n,1000000000)
     let a:time.l = s:mod(a:time.l,1000)
     let a:time.s = s:mod(seconds,60)
     let a:time.m = s:mod(s:div(seconds,60),60)
@@ -534,6 +535,7 @@ let s:strftime_items = {
             \ "P": ['h','p','[ap]m', 'am/pm',repeat(['am'],12) + repeat(['pm'],12)],
             \ "S": ['s','s','[ 0-5]\=\d', 'seconds',2],
             \ "L": ['l','l','[ 0-9]\=[ 0-9]\=[ 0-9]', 'milliseconds (000-999)',3],
+            \ "N": ['n','n','[ 0-9]\=[ 0-9]\=[ 0-9]\=[ 0-9]\=[ 0-9]\=[ 0-9]\=[ 0-9]\=[ 0-9]\=[ 0-9]', 'nanoseconds (000000000-999999999)',9],
             \ "v": ['y','y','[ivxlcdmn]\+','year (roman numerals)',s:function("s:arabic2roman")],
             \ "y": ['y','y','\d\d','year  (00-99)',s:function("s:modyear")],
             \ "Y": ['y','y','-\=\d\d\d\=\d\=','year',4],
