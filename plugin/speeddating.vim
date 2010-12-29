@@ -307,7 +307,7 @@ function! s:ary2pat(array)
 endfunction
 
 function! s:initializetime(time)
-    call extend(a:time,{'y': '','b':1,'d':0,'h':0,'m':0,'s':0,'o':0},"keep")
+    call extend(a:time,{'y': '','b':1,'d':0,'h':0,'m':0,'s':0,'o':0,'k':0},"keep")
     if get(a:time,'b','') !~ '^\d*$'
         let full = index(s:months_full ,a:time.b,0,1) + 1
         let engl = index(s:months_engl ,a:time.b,0,1) + 1
@@ -394,7 +394,8 @@ endfunction
 function! s:normalizetime(time)
     let a:time.y += s:div(a:time.b-1,12)
     let a:time.b = s:mod(a:time.b-1,12)+1
-    let seconds = a:time.h * 3600 + a:time.m * 60 + a:time.s
+    let seconds = a:time.h * 3600 + a:time.m * 60 + a:time.s + s:div(a:time.k,1000)
+    let a:time.k = s:mod(a:time.k,1000)
     let a:time.s = s:mod(seconds,60)
     let a:time.m = s:mod(s:div(seconds,60),60)
     let a:time.h = s:mod(s:div(seconds,3600),24)
@@ -461,14 +462,18 @@ function! s:strftime(pattern,time)
 endfunction
 
 function! s:localtime(...)
-    let ts = a:0 ? a:1 : localtime()
+    let ts = a:0 ? a:1 : reltimestr(reltime())
+    let us = matchstr(ts,'\.\zs.\{0,6\}')
+    let us .= repeat(0,6-strlen(us))
+    let us = +matchstr(us,'[1-9].*')
     let time = {
                 \ 'y': +strftime('%Y',ts),
                 \ 'b': +strftime('%m',ts),
                 \ 'd': +strftime('%d',ts),
                 \ 'h': +strftime('%H',ts),
                 \ 'm': +strftime('%M',ts),
-                \ 's': +strftime('%S',ts)}
+                \ 's': +strftime('%S',ts),
+                \ 'k': us / 1000}
     let jd = s:jd(time.y,time.b,time.d) - s:jd(1970,1,1)
     let real_ts = jd * 86400 + time.h * 3600 + time.m * 60 + time.s
     let time.o = (real_ts - ts) / 60
@@ -535,6 +540,7 @@ let s:strftime_items = {
             \ "v": ['y','y','[ivxlcdmn]\+','year (roman numerals)',s:function("s:arabic2roman")],
             \ "y": ['y','y','\d\d','year  (00-99)',s:function("s:modyear")],
             \ "Y": ['y','y','-\=\d\d\d\=\d\=','year',4],
+            \ "k": ['k','k','\d\d\d','milliseconds',3],
             \ "z": ['o','o','[+-]\d\d\d\d','timezone offset',s:function("s:formattz")],
             \ "Z": [' ','z','[A-Z]\{3,5}','timezone (incomplete)',3]}
 
@@ -798,6 +804,7 @@ SpeedDatingFormat %Y-%m-%d
 SpeedDatingFormat %-I:%M:%S%?[ ]%^P
 SpeedDatingFormat %-I:%M%?[ ]%^P
 SpeedDatingFormat %-I%?[ ]%^P
+SpeedDatingFormat %H:%M:%S,%k                     " SRT file
 SpeedDatingFormat %H:%M:%S
 SpeedDatingFormat %B %o, %Y
 SpeedDatingFormat %d%[-/ ]%b%1%y
