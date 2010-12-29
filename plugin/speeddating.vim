@@ -213,8 +213,10 @@ function! s:numberincrement(string,offset,increment)
         return [printf("0x%X",n),-1]
     elseif a:string =~# '^0x'
         return [printf("0x%x",n),-1]
-    elseif a:string =~# '^00*[^0]'
+    elseif a:string =~# '^00*[^0]' && &nrformats =~# 'octal'
         return [printf("0%o",n),-1]
+    elseif a:string =~# '^00*[^0]'
+        return [printf("%0".strlen(a:string)."d",n),-1]
     else
         return [printf("%d",n),-1]
     endif
