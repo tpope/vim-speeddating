@@ -1,6 +1,6 @@
 *speeddating.vim* Use CTRL-A/CTRL-X to increment dates, times, and more
 
-Author:  Tim Pope <vimNOSPAM@tpope.org>         *speeddating-author*
+Author:  Tim Pope <http://tpo.pe/>
 License: Same terms as Vim itself (see |license|)
 
 This plugin is only available if 'compatible' is not set.
