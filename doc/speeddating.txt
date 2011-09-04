@@ -1,4 +1,4 @@
-*speeddating.vim* Use CTRL-A/CTRL-X to increment dates, times, and more
+*speeddating.txt* Use CTRL-A/CTRL-X to increment dates, times, and more
 
 Author:  Tim Pope <http://tpo.pe/>
 License: Same terms as Vim itself (see |license|)
