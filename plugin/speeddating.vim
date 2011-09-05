@@ -286,18 +286,18 @@ function! s:roman2arabic(roman)
 endfunction
 
 function! s:arabic2roman(arabic)
-  if a:arabic <= 0
-      let arabic = -a:arabic
-      let roman = "n"
-  else
-      let arabic = a:arabic
-      let roman = ""
-  endif
-  for [numbers, letters] in s:a2r
-      let roman .= repeat(letters,arabic/numbers)
-      let arabic = arabic % numbers
-  endfor
-  return roman
+    if a:arabic <= 0
+        let arabic = -a:arabic
+        let roman = "n"
+    else
+        let arabic = a:arabic
+        let roman = ""
+    endif
+    for [numbers, letters] in s:a2r
+        let roman .= repeat(letters,arabic/numbers)
+        let arabic = arabic % numbers
+    endfor
+    return roman
 endfunction
 
 " }}}1
@@ -839,4 +839,4 @@ endif
 
 let &cpo = s:cpo_save
 
-" vim:set et sw=4 sts=4:
+" vim:set et sw=2 sts=2:
