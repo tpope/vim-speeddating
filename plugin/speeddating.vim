@@ -90,7 +90,7 @@ endfunction
 " }}}1
 " Normal Mode {{{1
 
-function! s:increment(increment)
+function! speeddating#increment(increment)
     for handler in s:time_handlers + g:speeddating_handlers
         let pattern = type(handler.regexp) == type(function('tr')) ? handler.regexp() : handler.regexp
         let [start,end,string;caps] = s:findinline('\C'.pattern)
@@ -167,7 +167,7 @@ function! s:incrementstring(string,offset,count)
     return [repl,offset,start,end]
 endfunction
 
-function! s:incrementvisual(count)
+function! speeddating#incrementvisual(count)
     let ve = &ve
     set virtualedit=all
     exe "norm! gv\<Esc>"
@@ -549,7 +549,7 @@ let s:strftime_items = {
 " }}}1
 " Time Handler {{{1
 
-function! s:timestamp(utc,count)
+function! speeddating#timestamp(utc,count)
     for handler in s:time_handlers
         let [start,end,string;caps] = s:findinline('\C'.join(handler.groups,''))
         if string != ""
@@ -736,7 +736,7 @@ function! s:comparecase(i1, i2)
     endif
 endfunction
 
-function! s:adddate(master,count,bang)
+function! speeddating#adddate(master,count,bang)
     if a:master == ""
         let time = s:initializetime({'y':1970,'s':localtime(),'z': 'UTC'})
         if a:bang && a:count
@@ -790,7 +790,7 @@ endfunction
 
 let s:time_handlers = []
 
-command! -bar -bang -count=0 -nargs=? SpeedDatingFormat :call s:adddate(<q-args>,<count>,<bang>0)
+command! -bar -bang -count=0 -nargs=? SpeedDatingFormat :call speeddating#adddate(<q-args>,<count>,<bang>0)
 
 " }}}1
 " Default Formats {{{1
@@ -819,12 +819,12 @@ SpeedDatingFormat %v
 " }}}1
 " Maps {{{1
 
-nnoremap <silent> <Plug>SpeedDatingUp   :<C-U>call <SID>increment(v:count1)<CR>
-nnoremap <silent> <Plug>SpeedDatingDown :<C-U>call <SID>increment(-v:count1)<CR>
-vnoremap <silent> <Plug>SpeedDatingUp   :<C-U>call <SID>incrementvisual(v:count1)<CR>
-vnoremap <silent> <Plug>SpeedDatingDown :<C-U>call <SID>incrementvisual(-v:count1)<CR>
-nnoremap <silent> <Plug>SpeedDatingNowLocal :<C-U>call <SID>timestamp(0,v:count)<CR>
-nnoremap <silent> <Plug>SpeedDatingNowUTC   :<C-U>call <SID>timestamp(1,v:count)<CR>
+nnoremap <silent> <Plug>SpeedDatingUp   :<C-U>call speeddating#increment(v:count1)<CR>
+nnoremap <silent> <Plug>SpeedDatingDown :<C-U>call speeddating#increment(-v:count1)<CR>
+vnoremap <silent> <Plug>SpeedDatingUp   :<C-U>call speeddating#incrementvisual(v:count1)<CR>
+vnoremap <silent> <Plug>SpeedDatingDown :<C-U>call speeddating#incrementvisual(-v:count1)<CR>
+nnoremap <silent> <Plug>SpeedDatingNowLocal :<C-U>call speeddating#timestamp(0,v:count)<CR>
+nnoremap <silent> <Plug>SpeedDatingNowUTC   :<C-U>call speeddating#timestamp(1,v:count)<CR>
 
 if !exists("g:speeddating_no_mappings") || !g:speeddating_no_mappings
     nmap  <C-A>     <Plug>SpeedDatingUp
