@@ -171,6 +171,9 @@ function! s:incrementvisual(count)
     let ve = &ve
     set virtualedit=all
     exe "norm! gv\<Esc>"
+    if &selection ==# 'exclusive' && getpos('.') == getpos("'>")
+        normal! h
+    endif
     let vcol = virtcol('.')
     let lnum = line("'<")
     let lastrepl = ""
