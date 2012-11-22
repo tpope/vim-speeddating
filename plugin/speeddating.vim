@@ -14,11 +14,29 @@ let s:cpo_save = &cpo
 set cpo&vim
 
 let g:speeddating_handlers = []
+let g:speeddating_formats = []
 
 " }}}1
 " Time Handler {{{1
 
-command! -bar -bang -count=0 -nargs=? SpeedDatingFormat :call speeddating#adddate(<q-args>,<count>,<bang>0)
+function! SpeedDatingFmt(master,count,bang)
+  " Calls with neither argument nor count are for information,
+  " and so should be handled immediately.
+  " Call loadformats to cause autoloading to happen
+  if a:master == "" && !a:count
+    call speeddating#loadformats()
+  endif
+
+  if exists("g:speeddating_loaded_formats")
+    " Autoloading already done pass on request immediately
+    call speeddating#adddate(a:master,a:count,a:bang)
+  else
+    " Defer handling of format specifications until autoloading is done
+    let g:speeddating_formats += [[a:master,a:count,a:bang]]
+  endif
+endfunction
+
+command! -bar -bang -count=0 -nargs=? SpeedDatingFormat :call SpeedDatingFmt(<q-args>,<count>,<bang>0)
 
 " }}}1
 " Maps {{{1

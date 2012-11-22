@@ -733,6 +733,17 @@ function! s:comparecase(i1, i2)
     endif
 endfunction
 
+function! speeddating#loadformats()
+  if exists("g:speeddating_loaded_formats")
+    return
+  endif
+
+  for fmt in g:speeddating_formats
+    call speeddating#adddate( fmt[0], fmt[1], fmt[2] )
+  endfor
+  let g:speeddating_loaded_formats = 1
+endfunction
+
 function! speeddating#adddate(master,count,bang)
     if a:master == ""
         let time = s:initializetime({'y':1970,'s':localtime(),'z': 'UTC'})
@@ -786,6 +797,9 @@ function! speeddating#adddate(master,count,bang)
 endfunction
 
 let s:time_handlers = []
+
+" Mark that we've loaded so further format definitions will happen immediately
+call speeddating#loadformats()
 
 " }}}1
 " Default Formats {{{1
