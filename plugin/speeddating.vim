@@ -58,6 +58,30 @@ if !exists("g:speeddating_no_mappings") || !g:speeddating_no_mappings
 endif
 
 " }}}1
+" Default Formats {{{1
+
+SpeedDatingFormat %i, %d %h %Y %H:%M:%S %z        " RFC822
+SpeedDatingFormat %i, %h %d, %Y at %I:%M:%S%^P %z " mutt default date format
+SpeedDatingFormat %a %b %_d %H:%M:%S %Z %Y        " default date(1) format
+SpeedDatingFormat %a %h %-d %H:%M:%S %Y %z        " git
+SpeedDatingFormat %h %_d %H:%M:%S                 " syslog
+SpeedDatingFormat %Y-%m-%d%[ T_-]%H:%M:%S %z
+SpeedDatingFormat %Y-%m-%d%[ T_-]%H:%M:%S%?[Z]    " SQL, etc.
+SpeedDatingFormat %Y-%m-%d
+SpeedDatingFormat %-I:%M:%S%?[ ]%^P
+SpeedDatingFormat %-I:%M%?[ ]%^P
+SpeedDatingFormat %-I%?[ ]%^P
+SpeedDatingFormat %H:%M:%S,%k                     " SRT file
+SpeedDatingFormat %H:%M:%S
+SpeedDatingFormat %B %o, %Y
+SpeedDatingFormat %d%[-/ ]%b%1%y
+SpeedDatingFormat %d%[-/ ]%b%1%Y                " These three are common in the
+SpeedDatingFormat %Y %b %d                      " 'Last Change:' headers of
+SpeedDatingFormat %b %d, %Y                     " Vim runtime files
+SpeedDatingFormat %^v
+SpeedDatingFormat %v
+
+" }}}1
 
 let &cpo = s:cpo_save
 
