@@ -19,7 +19,7 @@ let g:speeddating_formats = []
 " }}}1
 " Time Handler {{{1
 
-function! SpeedDatingFmt(master,count,bang)
+function! s:add_format(master,count,bang)
   " Calls with neither argument nor count are for information,
   " and so should be handled immediately.
   " Call loadformats to cause autoloading to happen
@@ -36,7 +36,7 @@ function! SpeedDatingFmt(master,count,bang)
   endif
 endfunction
 
-command! -bar -bang -count=0 -nargs=? SpeedDatingFormat :call SpeedDatingFmt(<q-args>,<count>,<bang>0)
+command! -bar -bang -count=0 -nargs=? SpeedDatingFormat :call s:add_format(<q-args>,<count>,<bang>0)
 
 " }}}1
 " Maps {{{1
