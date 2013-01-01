@@ -6,7 +6,7 @@
 " Initialization {{{1
 
 if exists("g:loaded_speeddating") || &cp || v:version < 700
-    finish
+  finish
 endif
 let g:loaded_speeddating = 1
 
@@ -49,12 +49,12 @@ nnoremap <silent> <Plug>SpeedDatingNowLocal :<C-U>call speeddating#timestamp(0,v
 nnoremap <silent> <Plug>SpeedDatingNowUTC   :<C-U>call speeddating#timestamp(1,v:count)<CR>
 
 if !exists("g:speeddating_no_mappings") || !g:speeddating_no_mappings
-    nmap  <C-A>     <Plug>SpeedDatingUp
-    nmap  <C-X>     <Plug>SpeedDatingDown
-    xmap  <C-A>     <Plug>SpeedDatingUp
-    xmap  <C-X>     <Plug>SpeedDatingDown
-    nmap d<C-A>     <Plug>SpeedDatingNowUTC
-    nmap d<C-X>     <Plug>SpeedDatingNowLocal
+  nmap  <C-A>     <Plug>SpeedDatingUp
+  nmap  <C-X>     <Plug>SpeedDatingDown
+  xmap  <C-A>     <Plug>SpeedDatingUp
+  xmap  <C-X>     <Plug>SpeedDatingDown
+  nmap d<C-A>     <Plug>SpeedDatingNowUTC
+  nmap d<C-X>     <Plug>SpeedDatingNowLocal
 endif
 
 " }}}1
