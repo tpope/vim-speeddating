@@ -18,7 +18,7 @@ let s:install_dir = expand("<sfile>:p:h:h")
 " Utility Functions {{{1
 
 function! s:function(name)
-  return function(substitute(a:name,'^s:',matchstr(expand('<sfile>'), '<SNR>\d\+_'),''))
+  return function(substitute(a:name,'^s:',matchstr(expand('<sfile>'), '.*\zs<SNR>\d\+_'),''))
 endfunction
 
 " In Vim, -4 % 3 == -1.  Let's return 2 instead.
