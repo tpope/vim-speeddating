@@ -808,7 +808,4 @@ endif
 
 let &cpo = s:cpo_save
 
-let s:offset = 480
-let s:offset_dst = 480
-
 " vim:set et sw=2 sts=2:
