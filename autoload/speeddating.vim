@@ -799,10 +799,10 @@ function! speeddating#adddate(master,count,bang)
   endif
 endfunction
 
-let s:time_handlers = []
-
-" Mark that we've loaded so further format definitions will happen immediately
-call speeddating#loadformats()
+if !exists('s:time_handlers')
+  let s:time_handlers = []
+  call speeddating#loadformats()
+endif
 
 " }}}1
 
