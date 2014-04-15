@@ -33,7 +33,7 @@ line, allowing for creation of sequences (1, 2, 3; 2000-10-30, 2000-10-31,
 It can also increment roman numerals and ordinals (1st, 2nd, 3rd, ...).  In
 visual mode, letters of the alphabet are supported.
 
-`d<C-A>` sets the timestamp under the cursor to the current time.  `d<C-X>`
+`d<C-X>` sets the timestamp under the cursor to the current time.  `d<C-A>`
 does the same, but uses UTC rather than the local time.
 
 The `.` command will work as expected if you install
