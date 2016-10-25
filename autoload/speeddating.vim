@@ -461,7 +461,7 @@ function! s:strftime(pattern,time)
 endfunction
 
 function! s:localtime(...)
-  let ts = a:0 ? a:1 : has('unix') ? reltimestr(reltime()) : localtime().'.0'
+  let ts = a:0 ? a:1 : has('unix')&&!has('nvim') ? reltimestr(reltime()) : localtime().'.0'
   let us = matchstr(ts,'\.\zs.\{0,6\}')
   let us .= repeat(0,6-strlen(us))
   let us = +matchstr(us,'[1-9].*')
