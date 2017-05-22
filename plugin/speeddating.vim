@@ -47,6 +47,13 @@ vnoremap <silent> <Plug>SpeedDatingDown :<C-U>call speeddating#incrementvisual(-
 nnoremap <silent> <Plug>SpeedDatingNowLocal :<C-U>call speeddating#timestamp(0,v:count)<CR>
 nnoremap <silent> <Plug>SpeedDatingNowUTC   :<C-U>call speeddating#timestamp(1,v:count)<CR>
 
+if empty(maparg('<Plug>SpeeddatingFallbackIncrement', 'n'))
+    nnoremap <Plug>SpeeddatingFallbackIncrement <C-A>
+endif
+if empty(maparg('<Plug>SpeeddatingFallbackDecrement', 'n'))
+    nnoremap <Plug>SpeeddatingFallbackDecrement <C-X>
+endif
+
 if !exists("g:speeddating_no_mappings") || !g:speeddating_no_mappings
   nmap  <C-A>     <Plug>SpeedDatingUp
   nmap  <C-X>     <Plug>SpeedDatingDown
