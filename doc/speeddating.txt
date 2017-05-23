@@ -61,6 +61,12 @@ d<C-X>                  Change the time under the cursor to the current local
 .                       If you want to use |.| to repeat a speeddating.vim
                         mapping, install repeat.vim.
 
+                                                *speeddating-fallback*
+To integrate with other incrementor scripts (such as swapit.vim or
+monday.vim), map <Plug>SpeeddatingFallbackIncrement and
+<Plug>SpeeddatingFallbackDecrement to the keys that should be invoked when
+the cursor is not on a date or time that this plugin can handle.
+
 FORMATS                                         *speeddating-formats*
 
 One can use the :SpeedDatingFormat command to list, add, and remove formats.
