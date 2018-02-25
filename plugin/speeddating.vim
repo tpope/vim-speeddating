@@ -96,7 +96,7 @@ SpeedDatingFormat %Y %b %d                      " 'Last Change:' headers of
 SpeedDatingFormat %b %d, %Y                     " Vim runtime files
 SpeedDatingFormat %^v
 SpeedDatingFormat %v
-SpeedDatingFormat %d.%m.%Y
+SpeedDatingFormat %d.%m.%Y                      "Used in Germany
 
 " }}}1
 
