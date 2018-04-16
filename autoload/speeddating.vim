@@ -81,6 +81,19 @@ function! s:replaceinline(start,end,new)
   call setpos("']",[0,line('.'),a:start+strlen(a:new),0])
 endfunction
 
+" remap non-negative or empty count argument
+function! s:remapcount(count,mappings)
+  let l:count = count
+  let l:result = ''
+  while l:count > 0
+    let l:digit = l:count % 10
+    let l:mapped = a:mappings[l:digit]
+    let l:result = l:mapped . l:result
+    let l:count = l:count / 10
+  endwhile
+  return l:result
+endfunction
+
 " }}}1
 " Normal Mode {{{1
 
@@ -102,9 +115,19 @@ function! speeddating#increment(increment)
     endif
   endfor
   if a:increment > 0
-    exe "norm ". a:increment."\<Plug>SpeedDatingFallbackUp"
+    if exists('g:speeddating_count_mappings')
+      let l:count = s:remapcount(a:increment,g:speeddating_count_mappings)
+    else
+      let l:count = a:increment
+    endif
+    exe "norm ".l:count."\<Plug>SpeedDatingFallbackUp"
   else
-    exe "norm ".-a:increment."\<Plug>SpeedDatingFallbackDown"
+    if exists('g:speeddating_count_mappings')
+      let l:count = s:remapcount(-a:increment,g:speeddating_count_mappings)
+    else
+      let l:count = -a:increment
+    endif
+    exe "norm ".l:count."\<Plug>SpeedDatingFallbackDown"
   endif
   silent! call repeat#set("\<Plug>SpeedDating" . (a:increment < 0 ? "Down" : "Up"),a:increment < 0 ? -a:increment : a:increment)
 endfunction

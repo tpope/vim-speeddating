@@ -99,4 +99,14 @@ Beginning a format with a digit causes Vim to treat leading digits as a count
 instead.  To work around this escape it with %[] (e.g., %[2]0%0y%0m%0d%* is a
 decent format for DNS serials).
 
+This plugin assumes that your [count] mappings are input through your digit
+keys.  If this is not the case, you can set g:speeddating_count_mappings to a
+list of your mappings, starting from the mapping for 0 through to 9.  These
+mappings must be literal, e.g. if a count of zero is input with CTRL-B CTRL-A:
+>
+    let g:speeddating_count_mappings = [ "\<C-B>", ...]
+<
+(Hint: see `string` for an explanation of '\<...>' escapes, and `i_CTRL-V` to
+see how to insert special keys literally.)
+
  vim:tw=78:et:ft=help:norl:
