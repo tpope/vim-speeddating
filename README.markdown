@@ -41,15 +41,13 @@ The `.` command will work as expected if you install
 
 ## Installation
 
-If you don't have a preferred installation method, I recommend
-installing [pathogen.vim](https://github.com/tpope/vim-pathogen), and
-then simply copy and paste:
+Install using your favorite package manager, or use Vim's built-in package
+support:
 
-    cd ~/.vim/bundle
-    git clone git://github.com/tpope/vim-speeddating.git
-
-Once help tags have been generated, you can view the manual with
-`:help speeddating`.
+    mkdir -p ~/.vim/pack/tpope/start
+    cd ~/.vim/pack/tpope/start
+    git clone https://tpope.io/vim/speeddating.git
+    vim -u NONE -c "helptags speeddating/doc" -c q
 
 ## Contributing
 
