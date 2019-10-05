@@ -42,8 +42,8 @@ command! -bar -bang -count=0 -nargs=? SpeedDatingFormat :call s:add_format(<q-ar
 
 nnoremap <silent> <Plug>SpeedDatingUp   :<C-U>call speeddating#increment(v:count1)<CR>
 nnoremap <silent> <Plug>SpeedDatingDown :<C-U>call speeddating#increment(-v:count1)<CR>
-vnoremap <silent> <Plug>SpeedDatingUp   :<C-U>call speeddating#incrementvisual(v:count1)<CR>
-vnoremap <silent> <Plug>SpeedDatingDown :<C-U>call speeddating#incrementvisual(-v:count1)<CR>
+xnoremap <silent> <Plug>SpeedDatingUp   :<C-U>call speeddating#incrementvisual(v:count1)<CR>
+xnoremap <silent> <Plug>SpeedDatingDown :<C-U>call speeddating#incrementvisual(-v:count1)<CR>
 nnoremap <silent> <Plug>SpeedDatingNowLocal :<C-U>call speeddating#timestamp(0,v:count)<CR>
 nnoremap <silent> <Plug>SpeedDatingNowUTC   :<C-U>call speeddating#timestamp(1,v:count)<CR>
 
