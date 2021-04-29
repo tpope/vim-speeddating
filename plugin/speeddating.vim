@@ -51,7 +51,7 @@ for [s:key, s:type] in [['<C-A>', 'Up'], ['<C-X>', 'Down']]
   let s:rhs = maparg(s:key, 'n')
   if !empty(maparg('<Plug>SpeedDatingFallback'.s:type, 'n'))
     continue
-  elseif s:rhs =~# '^$\|^<Plug>SpeedDating'
+  elseif s:rhs =~# '^$\|^gggH<C-O>G$\|^"+gP$\|^<Plug>SpeedDating'
     exe 'nnoremap <Plug>SpeedDatingFallback'.s:type s:key
   else
     exe 'nmap <Plug>SpeedDatingFallback'.s:type s:rhs
