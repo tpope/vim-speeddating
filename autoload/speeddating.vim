@@ -10,12 +10,12 @@ let s:install_dir = expand("<sfile>:p:h:h")
 " }}}1
 " Utility Functions {{{1
 
-function! s:function(name)
+function! s:function(name) abort
   return function(substitute(a:name,'^s:',matchstr(expand('<sfile>'), '.*\zs<SNR>\d\+_'),''))
 endfunction
 
 " In Vim, -4 % 3 == -1.  Let's return 2 instead.
-function! s:mod(a,b)
+function! s:mod(a, b) abort
   if (a:a < 0 && a:b > 0 || a:a > 0 && a:b < 0) && a:a % a:b != 0
     return (a:a % a:b) + a:b
   else
@@ -24,7 +24,7 @@ function! s:mod(a,b)
 endfunction
 
 " In Vim, -4 / 3 == -1.  Let's return -2 instead.
-function! s:div(a,b)
+function! s:div(a, b) abort
   if a:a < 0 && a:b > 0
     return (a:a-a:b+1)/a:b
   elseif a:a > 0 && a:b < 0
@@ -34,7 +34,7 @@ function! s:div(a,b)
   endif
 endfunction
 
-function! s:match(...)
+function! s:match(...) abort
   let b = call("match",a:000)
   let e = call("matchend",a:000)
   let s = call("matchlist",a:000)
@@ -44,7 +44,7 @@ function! s:match(...)
   return [b,e] + s
 endfunction
 
-function! s:findatoffset(string,pattern,offset)
+function! s:findatoffset(string, pattern, offset) abort
   let line = a:string
   let curpos = 0
   let offset = a:offset
@@ -62,11 +62,11 @@ function! s:findatoffset(string,pattern,offset)
   return [start,end,string] + caps
 endfunction
 
-function! s:findinline(pattern)
+function! s:findinline(pattern) abort
   return s:findatoffset(getline('.'),a:pattern,col('.')-1)
 endfunction
 
-function! s:replaceinline(start,end,new)
+function! s:replaceinline(start, end, new) abort
   let line = getline('.')
   let before_text = strpart(line,0,a:start)
   let after_text = strpart(line,a:end)
@@ -80,7 +80,7 @@ endfunction
 " }}}1
 " Normal Mode {{{1
 
-function! speeddating#increment(increment)
+function! speeddating#increment(increment) abort
   for handler in s:time_handlers + g:speeddating_handlers
     let pattern = type(handler.regexp) == type(function('tr')) ? handler.regexp() : handler.regexp
     let [start,end,string;caps] = s:findinline('\C'.pattern)
@@ -108,7 +108,7 @@ endfunction
 " }}}1
 " Visual Mode {{{1
 
-function! s:setvirtcol(line,col)
+function! s:setvirtcol(line, col) abort
   call setpos('.',[0,a:line,a:col,0])
   while virtcol('.') < a:col
     call setpos('.',[0,a:line,col('.')+1,0])
@@ -119,11 +119,11 @@ function! s:setvirtcol(line,col)
   return col('.') + getpos('.')[3]
 endfunction
 
-function! s:chars(string)
+function! s:chars(string) abort
   return strlen(substitute(a:string,'.','.','g'))
 endfunction
 
-function! s:incrementstring(string,offset,count)
+function! s:incrementstring(string, offset, count) abort
   let repl = ""
   let offset = -1
   for handler in s:time_handlers + g:speeddating_handlers + s:visual_handlers
@@ -157,7 +157,7 @@ function! s:incrementstring(string,offset,count)
   return [repl,offset,start,end]
 endfunction
 
-function! speeddating#incrementvisual(count)
+function! speeddating#incrementvisual(count) abort
   let ve = &ve
   set virtualedit=all
   exe "norm! gv\<Esc>"
@@ -200,7 +200,7 @@ endfunction
 
 let s:visual_handlers = []
 
-function! s:numberincrement(string,offset,increment)
+function! s:numberincrement(string, offset, increment) abort
   let n = (a:string + a:increment)
   if a:string =~# '^0x.*[A-F]'
     return [printf("0x%X",n),-1]
@@ -217,7 +217,7 @@ endfunction
 
 let s:visual_handlers += [{'regexp': '-\=\<\%(0x\x\+\|\d\+\)\>', 'increment': s:function("s:numberincrement")}]
 
-function! s:letterincrement(string,offset,increment)
+function! s:letterincrement(string, offset, increment) abort
   return [nr2char((char2nr(toupper(a:string)) - char2nr('A') + a:increment) % 26 + (a:string =~# '[A-Z]' ? char2nr('A') : char2nr('a'))),-1]
 endfunction
 
@@ -226,7 +226,7 @@ let s:visual_handlers += [{'regexp': '\<[A-Za-z]\>', 'increment': s:function("s:
 " }}}1
 " Ordinals {{{1
 
-function! s:ordinalize(number)
+function! s:ordinalize(number) abort
   let n = a:number
   let a = n < 0 ? -n : +n
   if a % 100 == 11 || a % 100 == 12 || a % 100 == 13
@@ -242,7 +242,7 @@ function! s:ordinalize(number)
   endif
 endfunction
 
-function! s:ordinalincrement(string,offset,increment)
+function! s:ordinalincrement(string, offset, increment) abort
   return [s:ordinalize(a:string+a:increment),-1]
 endfunction
 
@@ -257,7 +257,7 @@ let s:a2r = [[1000, 'm'], [900, 'cm'], [500, 'd'], [400, 'cd'], [100, 'c'],
       \             [90 , 'xc'], [50 , 'l'], [40 , 'xl'], [10 , 'x'],
       \             [9  , 'ix'], [5  , 'v'], [4  , 'iv'], [1  , 'i']]
 
-function! s:roman2arabic(roman)
+function! s:roman2arabic(roman) abort
   let roman  = tolower(a:roman)
   let sign   = 1
   let arabic = 0
@@ -278,7 +278,7 @@ function! s:roman2arabic(roman)
   return arabic
 endfunction
 
-function! s:arabic2roman(arabic)
+function! s:arabic2roman(arabic) abort
   if a:arabic <= 0
     let arabic = -a:arabic
     let roman = "n"
@@ -296,12 +296,11 @@ endfunction
 " }}}1
 " Time Helpers {{{1
 
-function! s:ary2pat(array)
+function! s:ary2pat(array) abort
   return '\%('.join(a:array,'\|').'\)'
-  return '\%('.join(map(copy(a:array),'substitute(v:val,"[[:alpha:]]","[\\u&\\l&]","g")'),'\|').'\)'
 endfunction
 
-function! s:initializetime(time)
+function! s:initializetime(time) abort
   call extend(a:time,{'y': '','b':1,'d':0,'h':0,'m':0,'s':0,'o':0,'k':0},"keep")
   if get(a:time,'b','') !~ '^\d*$'
     let full = index(s:months_full ,a:time.b,0,1) + 1
@@ -365,14 +364,14 @@ function! s:initializetime(time)
 endfunction
 
 " Julian day (always Gregorian calendar)
-function! s:jd(year,mon,day)
+function! s:jd(year, mon, day) abort
   let y = a:year + 4800 - (a:mon <= 2)
   let m = a:mon + (a:mon <= 2 ? 9 : -3)
   let jul = a:day + (153*m+2)/5 + s:div(1461*y,4) - 32083
   return jul - s:div(y,100) + s:div(y,400) + 38
 endfunction
 
-function! s:gregorian(jd)
+function! s:gregorian(jd) abort
   let l = a:jd + 68569
   let n = s:div(4 * l, 146097)
   let l = l - s:div(146097 * n + 3, 4)
@@ -386,7 +385,7 @@ function! s:gregorian(jd)
   return {'y':y,'b':m,'d':d}
 endfunction
 
-function! s:normalizetime(time)
+function! s:normalizetime(time) abort
   let a:time.y += s:div(a:time.b-1,12)
   let a:time.b = s:mod(a:time.b-1,12)+1
   let seconds = a:time.h * 3600 + a:time.m * 60 + a:time.s + s:div(a:time.k,1000)
@@ -402,7 +401,7 @@ function! s:normalizetime(time)
   endif
 endfunction
 
-function! s:applymodifer(number,modifier,width)
+function! s:applymodifer(number, modifier, width) abort
   if a:modifier == '-'
     return substitute(a:number,'^0*','','')
   elseif a:modifier == '_'
@@ -414,11 +413,11 @@ function! s:applymodifer(number,modifier,width)
   endif
 endfunction
 
-function! s:modyear(y)
+function! s:modyear(y) abort
   return printf('%02d',s:mod(a:y,100))
 endfunction
 
-function! s:strftime(pattern,time)
+function! s:strftime(pattern, time) abort
   if type(a:time) == type({})
     let time = s:normalizetime(copy(a:time))
   else
@@ -456,7 +455,7 @@ function! s:strftime(pattern,time)
   return expanded
 endfunction
 
-function! s:localtime(...)
+function! s:localtime(...) abort
   let ts = a:0 ? a:1 : has('unix')&&!has('nvim') ? reltimestr(reltime()) : localtime().'.0'
   let us = matchstr(ts,'\.\zs.\{0,6\}')
   let us .= repeat(0,6-strlen(us))
@@ -475,7 +474,7 @@ function! s:localtime(...)
   return time
 endfunction
 
-function! s:formattz(offset)
+function! s:formattz(offset) abort
   if a:offset < 0
     let offset = -a:offset
     let sign = "-"
@@ -512,6 +511,7 @@ endif
 let s:days_engl   =["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
 let s:days_abbr   =map(range(86400*3+43200-s:offset*60,86400*12,86400),'strftime("%a",v:val)')[0:6]
 let s:days_full   =map(range(86400*3+43200-s:offset*60,86400*12,86400),'strftime("%A",v:val)')[0:6]
+let g:days_full = s:days_full
 
 let s:months_engl =["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 let s:months_abbr =map(range(86400*2,86400*365,86400*31),'strftime("%b",v:val)')
@@ -542,7 +542,7 @@ let s:strftime_items = {
 " }}}1
 " Time Handler {{{1
 
-function! speeddating#timestamp(utc,count)
+function! speeddating#timestamp(utc, count) abort
   for handler in s:time_handlers
     let [start,end,string;caps] = s:findinline('\C'.join(handler.groups,''))
     if string != ""
@@ -580,7 +580,7 @@ function! speeddating#timestamp(utc,count)
   endif
 endfunction
 
-function! s:dateincrement(string,offset,increment) dict
+function! s:dateincrement(string, offset, increment) dict abort
   let [start,end,string;caps] = s:match(a:string,'\C'.join(self.groups,''))
   let string = a:string
   let offset = a:offset
@@ -639,11 +639,11 @@ function! s:dateincrement(string,offset,increment) dict
   return [time_string, matchend(time_string,partial_pattern)-inner_offset]
 endfunction
 
-function! s:timeregexp() dict
+function! s:timeregexp() dict abort
   return join(self.groups,'')
 endfunction
 
-function! s:createtimehandler(format)
+function! s:createtimehandler(format) abort
   let pattern = '^\%(%?\=\[.\{-\}\]\|%[-_0^]\=.\|[^%]*\)'
   let regexp = ['\%(\<\|-\@=\)']
   let reader = []
@@ -721,7 +721,7 @@ function! s:createtimehandler(format)
   return {'source': a:format, 'strftime': template, 'groups': regexp, 'regexp': s:function('s:timeregexp'), 'reader': reader, 'targets': targets, 'default': default, 'increment': s:function('s:dateincrement')}
 endfunction
 
-function! s:comparecase(i1, i2)
+function! s:comparecase(i1, i2) abort
   if a:i1 ==? a:i2
     return a:i1 ==# a:i2 ? 0 : a:i1 ># a:i2 ? 1 : -1
   else
@@ -729,7 +729,7 @@ function! s:comparecase(i1, i2)
   endif
 endfunction
 
-function! speeddating#loadformats()
+function! speeddating#loadformats() abort
   if exists("g:speeddating_loaded_formats")
     return
   endif
@@ -740,7 +740,7 @@ function! speeddating#loadformats()
   let g:speeddating_loaded_formats = 1
 endfunction
 
-function! speeddating#adddate(master,count,bang)
+function! speeddating#adddate(master, count, bang) abort
   if a:master == ""
     let time = s:initializetime({'y':1970,'s':localtime(),'z': 'UTC'})
     if a:bang && a:count

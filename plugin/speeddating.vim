@@ -18,7 +18,7 @@ let g:speeddating_handlers = []
 " }}}1
 " Time Handler {{{1
 
-function! s:add_format(master,count,bang)
+function! s:add_format(master, count, bang) abort
   " Calls with neither argument nor count are for information,
   " and so should be handled immediately.
   " Call loadformats to cause autoloading to happen
