@@ -336,9 +336,9 @@ function! s:initializetime(time) abort
     let full = index(s:days_full,a:time.w,0,1)
     let engl = index(s:days_engl,a:time.w,0,1)
     let abbr = index(s:days_abbr,a:time.w,0,1)
-    let a:time.w = full > 0 ? full : (engl > 0 ? engl : (abbr > 0 ? abbr : a:time.w))
+    let a:time.w = full >= 0 ? full : (engl >= 0 ? engl : (abbr >= 0 ? abbr : a:time.w))
     if a:time.d == 0
-      let a:time.d = s:mod(a:time.w - s:jd(a:time.y,a:time.b,1),7)
+      let a:time.d = s:mod(a:time.w - s:jd(a:time.y, a:time.b, 1) - 1, 7) + 1
     elseif a:time.y == '' && a:time.b * a:time.d > 0
       let a:time.y = strftime("%Y")-2
       while s:mod(s:jd(a:time.y,a:time.b,a:time.d)+1,7) != a:time.w
