@@ -2,10 +2,6 @@
 
 " Initialization {{{1
 
-if !exists("g:loaded_speeddating") || &cp || v:version < 700
-  finish
-endif
-
 let s:cpo_save = &cpo
 set cpo&vim
 
