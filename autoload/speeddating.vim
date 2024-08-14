@@ -456,7 +456,16 @@ function! s:strftime(pattern, time) abort
 endfunction
 
 function! s:localtime(...) abort
-  let ts = a:0 ? a:1 : has('unix')&&!has('nvim') ? reltimestr(reltime()) : localtime().'.0'
+  if a:0
+    let ts = a:1
+  elseif has('reltime') && !has('win32') && !has('prof_nsec') && !has('nvim')
+    " This use of reltime() relies on internal, system-dependent behavior.
+    " The above conditional should select working configurations of Vim as of
+    " v9.1.0674.
+    let ts = reltimestr(reltime())
+  else
+    let ts = localtime().'.0'
+  endif
   let us = matchstr(ts,'\.\zs.\{0,6\}')
   let us .= repeat(0,6-strlen(us))
   let us = +matchstr(us,'[1-9].*')
